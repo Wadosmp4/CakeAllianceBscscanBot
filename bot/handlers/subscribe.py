@@ -25,7 +25,7 @@ class Unsubscribe(StatesGroup):
 async def cmd_my_addresses(message: Message, state: FSMContext):
     user_data = await state.get_data()
     if addresses := user_data[SUBSCRIBED_ADDRESSES]:
-        await message.answer(f'You are subscribed to this addresses: {", ".join(addresses)}')
+        await message.answer(f'You are subscribed to these addresses: {", ".join(addresses)}')
         return
     await message.answer('You are not subscribed to any account address')
 
