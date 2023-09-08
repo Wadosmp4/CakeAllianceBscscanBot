@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    command: bash -c 'python main.py'
+    depends_on:
+      - rabbitmq
+      - redis
+      - mongo
+      - celery-worker
+
+  mongo:
+    image: "mongo:6.0.8"
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+      - "27017:27017"
+    volumes:
+      - 'mongo:/data:/data/db'
+
+  celery-worker:
+    build: .
+    restart: always
+    command: bash -c 'celery -A celery_app worker --loglevel=DEBUG'
+    env_file:
+      - ./.env
+    depends_on:
+      - rabbitmq
+      - redis
+
+  rabbitmq:
+    image: "rabbitmq:3.9.29"
+    restart: always
+    env_file:
+      - ./.env
+    ports:
+      - "5672:5672"
+
+  redis:
+    image: "redis:7.0"
+    restart: always
+    ports:
+      - '6379:6379'
+    command: bash -c 'redis-server --requirepass ${REDIS_PASSWORD}'
+    volumes:
+      - cache:/data
+    env_file:
+      - ./.env
+
+volumes:
+  mongo:
+  cache:
+    driver: local
